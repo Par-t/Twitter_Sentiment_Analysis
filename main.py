@@ -40,14 +40,12 @@ if len(tag) > 1 and clicked == 1:
 
     print(len(tweet_list))
 
-
-    detector = Translator()
+    translator = Translator()
     data = []
     for tweet in tweet_list:
-        dec_lan = detector.detect(tweet)
-
-        if dec_lan.lang == 'en' and dec_lan.confidence >= 0.7:
-            data.append(tweet)
+        print(tweet)
+        translation = translator.translate(tweet, dest='en')
+        data.append(tweet)
 
     print(len(data))
 
@@ -83,20 +81,15 @@ if len(tag) > 1 and clicked == 1:
 
         return " ".join(y)
 
+
     df = pd.DataFrame(data)
 
     df.rename(columns={df.columns[0]: 'text'}, inplace=True)
 
     df['pp_tweet'] = df['text'].apply(pp)
-
+    df.dropna(inplace=True)
     tfidf = pickle.load(open('sentiment_analysis_vectorizer.pkl', 'rb'))
     model = pickle.load(open('sentiment_analysis_model.pkl', 'rb'))
-
-    vector_input = tfidf.transform([df['pp_tweet'][0]])
-
-    result = model.predict(vector_input)[0]
-
-    print(result)
 
     vector_input = tfidf.transform(df['pp_tweet']).toarray()
     pred = model.predict(vector_input)
@@ -120,10 +113,10 @@ if len(tag) > 1 and clicked == 1:
     st.text("Total number of tweets:")
     st.write(len(pred))
     st.text("Percentage of positive tweets:")
-    st.write(positive_count / len(pred) * 100)
+    positive_percent = round(positive_count / len(pred) * 100,2)
+    st.write(positive_percent)
     st.text("Percentage of positive tweets:")
-    st.write(negative_count / len(pred) * 100)
+    st.write(100-positive_percent)
 
     labels = ['Positive', 'Negative']
     counts = [positive_count, negative_count]
-
