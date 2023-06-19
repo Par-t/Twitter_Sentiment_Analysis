@@ -9,6 +9,7 @@ from nltk.stem.porter import PorterStemmer
 import tweepy
 import re
 import numpy as np
+from googletrans import Translator
 
 consumer_key = st.secrets["CONSUMER_KEY"]
 bearer = st.secrets["BEARER"]
@@ -39,7 +40,6 @@ if len(tag) > 1 and clicked == 1:
 
     print(len(tweet_list))
 
-    from googletrans import Translator
 
     detector = Translator()
     data = []
