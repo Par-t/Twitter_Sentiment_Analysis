@@ -8,6 +8,7 @@ from nltk.tokenize import TweetTokenizer
 from nltk.stem.porter import PorterStemmer
 import tweepy
 import re
+import numpy as np
 
 consumer_key = st.secrets["CONSUMER_KEY"]
 bearer = st.secrets["BEARER"]
@@ -15,23 +16,22 @@ access_token = st.secrets["ACCESS_TOKEN"]
 access_token_secret = st.secrets["ACCESS_TOKEN_SECRET"]
 consumer_secret = st.secrets["CONSUMER_SECRET"]
 
-print(consumer_secret)
-
 nltk.download('punkt')
 nltk.download('stopwords')
 
 st.title("Real time Twitter data Sentiment Analysis")
 
-client = tweepy.Client(bearer, consumer_key, consumer_secret, access_token, access_token_secret)
-auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
-api = tweepy.API(auth)
-
 tag = st.text_input('Enter Hashtag for tweets to be fetched:', '#')
 print(tag)
+clicked = st.button('Analyze Tweets')
 
-if len(tag) > 1 & st.button('Analyze Tweets'):
+if len(tag) > 1 and clicked == 1:
+
+    client = tweepy.Client(bearer, consumer_key, consumer_secret, access_token, access_token_secret)
+    auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
+    api = tweepy.API(auth)
     query = tag
-    tweets = tweepy.Cursor(api.search_tweets, q=query, tweet_mode='extended').items(limit=500)
+    tweets = tweepy.Cursor(api.search_tweets, q=query, tweet_mode='extended').items(limit=100)
 
     tweet_list = []
     for tweet in tweets:
@@ -46,7 +46,7 @@ if len(tag) > 1 & st.button('Analyze Tweets'):
     for tweet in tweet_list:
         dec_lan = detector.detect(tweet)
 
-        if (dec_lan.lang == 'en' and dec_lan.confidence >= 0.7):
+        if dec_lan.lang == 'en' and dec_lan.confidence >= 0.7:
             data.append(tweet)
 
     print(len(data))
@@ -61,30 +61,27 @@ if len(tag) > 1 & st.button('Analyze Tweets'):
         text = tokenizer.tokenize(text)
 
         y = []
-        for i in text:
-            if i.isalnum():
-                y.append(i)
+        for j in text:
+            if j.isalnum():
+                y.append(j)
 
         text = y[:]
         y.clear()
 
         stop_words = set(stopwords.words('english'))
         punc = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
-        for i in text:
-            if i not in stop_words and i not in punc:
-                y.append(i)
+        for j in text:
+            if j not in stop_words and j not in punc:
+                y.append(j)
 
         text = y[:]
         y.clear()
 
         ps = PorterStemmer()
-        for i in text:
-            y.append(ps.stem(i))
+        for j in text:
+            y.append(ps.stem(j))
 
         return " ".join(y)
-
-
-    df = []
 
     df = pd.DataFrame(data)
 
@@ -116,3 +113,17 @@ if len(tag) > 1 & st.button('Analyze Tweets'):
     dfResult['Sentiment'] = result
 
     st.write(dfResult)
+
+    positive_count = np.count_nonzero(pred == 1)
+    negative_count = np.count_nonzero(pred == 0)
+
+    st.text("Total number of tweets:")
+    st.write(len(pred))
+    st.text("Percentage of positive tweets:")
+    st.write(positive_count / len(pred) * 100)
+    st.text("Percentage of positive tweets:")
+    st.write(negative_count / len(pred) * 100)
+
+    labels = ['Positive', 'Negative']
+    counts = [positive_count, negative_count]
+
