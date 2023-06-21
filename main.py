@@ -9,7 +9,8 @@ from nltk.stem.porter import PorterStemmer
 import tweepy
 import re
 import numpy as np
-from googletrans import Translator
+# from googletrans import Translator
+import langid
 
 consumer_key = st.secrets["CONSUMER_KEY"]
 bearer = st.secrets["BEARER"]
@@ -20,7 +21,7 @@ consumer_secret = st.secrets["CONSUMER_SECRET"]
 nltk.download('punkt')
 nltk.download('stopwords')
 
-st.title("Real time Twitter data Sentiment Analysis")
+st.title("Real time Twitter Tweets Sentiment Analysis")
 
 tag = st.text_input('Enter Hashtag for tweets to be fetched:', '#')
 print(tag)
@@ -32,7 +33,7 @@ if len(tag) > 1 and clicked == 1:
     auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
     api = tweepy.API(auth)
     query = tag
-    tweets = tweepy.Cursor(api.search_tweets, q=query, tweet_mode='extended').items(limit=100)
+    tweets = tweepy.Cursor(api.search_tweets, q=query, tweet_mode='extended').items(limit=10)
 
     tweet_list = []
     for tweet in tweets:
@@ -40,14 +41,20 @@ if len(tag) > 1 and clicked == 1:
 
     print(len(tweet_list))
 
-    translator = Translator()
     data = []
-    for tweet in tweet_list:
-        print(tweet)
-        translation = translator.translate(tweet, dest='en')
-        data.append(tweet)
 
-    print(len(data))
+    # translator = Translator()
+    # for tweet in tweet_list:
+    #     print(tweet)
+    #     translation = translator.translate(tweet, dest='en')
+    #     data.append(tweet)
+    #
+    # print(len(data))
+
+    for tweet in tweet_list:
+        language, confidence = langid.classify(tweet)
+        if language == "en":
+            data.append(tweet)
 
 
     def pp(text):
@@ -82,12 +89,10 @@ if len(tag) > 1 and clicked == 1:
         return " ".join(y)
 
 
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(data, columns=['text'])
 
-    df.rename(columns={df.columns[0]: 'text'}, inplace=True)
 
     df['pp_tweet'] = df['text'].apply(pp)
-    df.dropna(inplace=True)
     tfidf = pickle.load(open('sentiment_analysis_vectorizer.pkl', 'rb'))
     model = pickle.load(open('sentiment_analysis_model.pkl', 'rb'))
 
@@ -113,10 +118,10 @@ if len(tag) > 1 and clicked == 1:
     st.text("Total number of tweets:")
     st.write(len(pred))
     st.text("Percentage of positive tweets:")
-    positive_percent = round(positive_count / len(pred) * 100,2)
+    positive_percent = round(positive_count / len(pred) * 100, 2)
     st.write(positive_percent)
-    st.text("Percentage of positive tweets:")
-    st.write(100-positive_percent)
+    st.text("Percentage of negative tweets:")
+    st.write(100 - positive_percent)
 
     labels = ['Positive', 'Negative']
     counts = [positive_count, negative_count]

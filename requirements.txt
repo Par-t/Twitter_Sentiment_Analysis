@@ -12,3 +12,5 @@ tweepy==4.13.0
 python-dotenv==1.0
 matplotlib~=3.6.2
 googletrans~=3.0.0
+textblob~=0.17.1
+langid~=1.1.6
