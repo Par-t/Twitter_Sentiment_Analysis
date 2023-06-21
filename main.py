@@ -9,7 +9,6 @@ from nltk.stem.porter import PorterStemmer
 import tweepy
 import re
 import numpy as np
-# from googletrans import Translator
 import langid
 
 consumer_key = st.secrets["CONSUMER_KEY"]
@@ -33,7 +32,7 @@ if len(tag) > 1 and clicked == 1:
     auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
     api = tweepy.API(auth)
     query = tag
-    tweets = tweepy.Cursor(api.search_tweets, q=query, tweet_mode='extended').items(limit=10)
+    tweets = tweepy.Cursor(api.search_tweets, q=query, tweet_mode='extended').items(limit=100)
 
     tweet_list = []
     for tweet in tweets:
@@ -42,14 +41,6 @@ if len(tag) > 1 and clicked == 1:
     print(len(tweet_list))
 
     data = []
-
-    # translator = Translator()
-    # for tweet in tweet_list:
-    #     print(tweet)
-    #     translation = translator.translate(tweet, dest='en')
-    #     data.append(tweet)
-    #
-    # print(len(data))
 
     for tweet in tweet_list:
         language, confidence = langid.classify(tweet)
@@ -118,7 +109,7 @@ if len(tag) > 1 and clicked == 1:
     st.text("Total number of tweets:")
     st.write(len(pred))
     st.text("Percentage of positive tweets:")
-    positive_percent = round(positive_count / len(pred) * 100, 2)
+    positive_percent = round(positive_count / len(pred) * 100)
     st.write(positive_percent)
     st.text("Percentage of negative tweets:")
     st.write(100 - positive_percent)
