@@ -109,7 +109,7 @@ if len(tag) > 1 and clicked == 1:
     st.text("Total number of tweets:")
     st.write(len(pred))
     st.text("Percentage of positive tweets:")
-    positive_percent = round(positive_count / len(pred) * 100)
+    positive_percent = round(positive_count / len(pred) * 100,2)
     st.write(positive_percent)
     st.text("Percentage of negative tweets:")
     st.write(100 - positive_percent)
