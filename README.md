@@ -46,10 +46,10 @@ To deploy and run the Twitter Sentiment Analysis project locally, follow the ste
 
 7. Open the secrets.toml file and add your Twitter API keys in the following format
 
-CONSUMER\_KEY = "YOUR\_CONSUMER\_KEY"
-CONSUMER\_SECRETt = "YOUR\_CONSUMER\_SECRET"
-ACCESS\_TOKEN = "YOUR\_ACCESS\_TOKEN"
-ACCESS\_TOKEN\_SECRET= "YOUR\_ACCESS\_TOKEN\_SECRET"
+CONSUMER\_KEY = "YOUR\_CONSUMER\_KEY"<br/>
+CONSUMER\_SECRET = "YOUR\_CONSUMER\_SECRET"<br/>
+ACCESS\_TOKEN = "YOUR\_ACCESS\_TOKEN"<br/>
+ACCESS\_TOKEN\_SECRET= "YOUR\_ACCESS\_TOKEN\_SECRET"<br/>
 BEARER="YOUR\_BEARER\_TOKEN"
 
 8. Run the Streamlit application by executing : streamlit run main.py
